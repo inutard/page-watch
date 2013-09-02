@@ -1,47 +1,16 @@
-//some issue with chrome popup prevents tab key from working correctly.
-window.onload = loadOptions;
+//game plan:
+//background.js will poll monitored websites every 5 minutes
+//if any new updates occur. a message is sent to popup.js with
+//the information, and an alert is sent to the user
 
-function loadOptions() {
-	var form = document.getElementById("info");
-	var user = localStorage["user"];
-	var pass = localStorage["pass"];
-
-	form.username.value = user;
-	form.password.value = pass;
-}
-
-function saveOptions() {
-	var form = document.getElementById("info");
-	var user = form.username.value;
-	var pass = form.password.value;
-	localStorage["user"] = user;
-	localStorage["pass"] = pass;
-	alert("User info saved.");
-}
-
-function eraseOptions() {
-	localStorage.removeItem("user");
-	localStorage.removeItem("pass");
-	alert("User info removed.");
-	location.reload();
-}
-
-function saveHandler(e) {
-  saveOptions();
-}
-
-function eraseHandler(e) {
-  eraseOptions();
-}
-
-function simulateKeyPress(charCode) {
-  jQuery.event.trigger({ type : 'keypress', which : charCode });
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-  document.getElementById("save").addEventListener('click', saveHandler);
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-  document.getElementById("erase").addEventListener('click', eraseHandler);
+//listening for popup requests
+chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+    if (request.method == "getUpdates") {
+      //get updates to websites
+      updateInfo = createUpdateInfo();
+      sendResponse({updates: updateInfo});
+    } else if (request.method == "addWebsite") {
+      //set websites, give update watchers some info
+      addWatcher("www.google.com");
+    }
 });
