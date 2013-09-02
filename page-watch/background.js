@@ -2,11 +2,7 @@ var storage = chrome.storage.local;
 
 //listening for popup requests
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-    if (request.method == "getUpdates") {
-      //get updates to websites
-      updateInfo = createUpdateInfo();
-      sendResponse({updates: updateInfo});
-    } else if (request.method == "addWebsite") {
+    if (request.type == "addWebsite") {
       //set websites, give update watchers some info
       addWatcher("www.google.com");
     }
@@ -31,7 +27,7 @@ function updateWatchers() {
           //update website's new hash
           items[site] = hash(contents);
           //do a diff between old site and new site
-          //fill in code later...
+          chrome.extension.sendMessage({website: site}, function() {});
         }
       }
       

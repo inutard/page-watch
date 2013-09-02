@@ -1,8 +1,8 @@
 {
-  "name": "UBCAutoLogin",
+  "name": "PageWatch",
   "version": "3.1",
   "manifest_version": 2,
-  "description": "UBC Logins made easy!",
+  "description": "herp derp",
   "icons": { "16": "icon.png",
 			 "48": "icon.png",
 			 "128": "icon.png" },
