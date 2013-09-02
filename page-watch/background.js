@@ -25,7 +25,14 @@ function addWatcher(url) {
 
 
 function hash(s){
-  return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);              
+  var hashCode = 0, i, char;
+    if (s.length == 0) return hashCode;
+    for (i = 0, l = s.length; i < l; i++) {
+        char  = s.charCodeAt(i);
+        hashCode  = ((hashCode<<5)-hashCode)+char;
+        hashCode |= 0; // Convert to 32bit integer
+    }
+  return hashCode;             
 }
 
 function updateWatchers() {
@@ -34,9 +41,11 @@ function updateWatchers() {
     for (var site in websites) {
       console.log(site);
       var handleContents = function(contents) {
-        if (hash(contents) != websites) {
+        source = contents.target.response;
+        console.log(source);
+        if (hash(source) != websites) {
           //update website's new hash
-          websites[site] = hash(contents);
+          websites[site] = hash(source);
           //do a diff between old site and new site
           chrome.extension.sendMessage({url: site}, function() {});
           storage.set({'watchedWebsites' : websites});
