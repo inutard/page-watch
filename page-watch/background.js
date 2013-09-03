@@ -1,16 +1,39 @@
 var storage = chrome.storage.local;
 
+function doInCurrentTab(tabCallback) {
+  chrome.tabs.query(
+    { currentWindow: true, active: true },
+    function (tabArray) { tabCallback(tabArray[0]); }
+  );
+}
+
 //add a watcher to a website
-function addWatcher(url) {
-  var setWebsite = function(items) {
-    websites = items.watchedWebsites;
-    if (url in websites) return;
+function toggleWatcher(url) {
+  var addWebsite = function(websites, url) {
     websites[url] = 0;
     storage.set({'watchedWebsites' : websites}, function() {
-      alert('Page at ' + url + ' added!');
+      //alert('Page at ' + url + ' added!');
+      doInCurrentTab(function(tab) { changeBadge({tabId: tab.id}) });
     });
   }
-  storage.get('watchedWebsites', setWebsite);
+  
+  var removeWebsite = function(websites, url) {
+    delete websites[url];
+    storage.set({'watchedWebsites' : websites}, function() {
+      //alert('Page at ' + url + ' removed!');
+      doInCurrentTab(function(tab) { changeBadge({tabId: tab.id}) });
+    });
+  }
+  
+  var toggleWebsite = function(items) {
+    websites = items.watchedWebsites;
+    if (url in websites) {
+      removeWebsite(websites, url);
+    } else {
+      addWebsite(websites, url);
+    }
+  }
+  storage.get('watchedWebsites', toggleWebsite);
 }
 
 
@@ -32,8 +55,6 @@ function createContentHandler(url, websites) {
                   //update website's new hash
                   var oldHash = websites[url];
                   websites[url] = hash(source);
-                  console.log("updating " + url);
-                  console.log(oldHash);
                   if (oldHash != 0) {
                     //do a diff between old site and new site
                     //chrome.extension.sendMessage({url: site}, function() {});
@@ -85,6 +106,26 @@ chrome.notifications.onClicked.addListener(notificationClicked);
 //add page to watch list when clicked
 function watchPage(tab) {
   console.log("adding watcher to " + tab.url);
-  addWatcher(tab.url);
+  toggleWatcher(tab.url);
 }
 chrome.browserAction.onClicked.addListener(watchPage);
+
+//add red box to icon if tab changes or url changes
+function changeBadge(changeInfo) {
+  console.log(changeInfo);
+  var toggleBadge = function(items) {
+    websites = items.watchedWebsites;
+    chrome.tabs.get(changeInfo.tabId, function(tab) {
+      console.log(tab);
+      if (tab.url in websites) {
+        chrome.browserAction.setBadgeText({text: " "});
+      } else {
+        chrome.browserAction.setBadgeText({text: ""});
+      }
+    });
+  }
+  storage.get('watchedWebsites', toggleBadge);
+}
+
+chrome.tabs.onUpdated.addListener(changeBadge);
+chrome.tabs.onActivated.addListener(changeBadge);
