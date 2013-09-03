@@ -10,3 +10,12 @@ chrome.runtime.onMessage.addListener(
     alert(request.url + " has changed!");
   }
 );
+
+function watchPage() {
+  chrome.tabs.getSelected(null, function(tab) {
+    chrome.extension.sendMessage({url: tab.url}, function(response) {});
+  });
+}
+
+//handles clicking on watch page
+$(document).on('click', '.watchpage', watchPage);
