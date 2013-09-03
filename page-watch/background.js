@@ -84,6 +84,7 @@ chrome.notifications.onClicked.addListener(notificationClicked);
 
 //add page to watch list when clicked
 function watchPage(tab) {
+  console.log("adding watcher to " + tab.url);
   addWatcher(tab.url);
 }
 chrome.browserAction.onClicked.addListener(watchPage);

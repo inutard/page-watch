@@ -3,9 +3,9 @@
   "version": "3.1",
   "manifest_version": 2,
   "description": "herp derp",
-  "icons": { "16": "icon.png",
-			 "48": "icon.png",
-			 "128": "icon.png" },
+  "icons": { "16": "noun-project-glasses.png",
+			 "48": "noun-project-glasses.png",
+			 "128": "noun-project-glasses.png" },
   "background": {
     "scripts": ["background.js"]
   },
