@@ -1,10 +1,5 @@
 var storage = chrome.storage.local;
 
-//listening for popup requests
-chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
-  addWatcher(request.url);
-});
-
 //add a watcher to a website
 function addWatcher(url) {
   var setWebsite = function(items) {
@@ -87,7 +82,8 @@ function notificationClicked(url) {
 }
 chrome.notifications.onClicked.addListener(notificationClicked);
 
+//add page to watch list when clicked
 function watchPage(tab) {
-  chrome.extension.sendMessage({url: tab.url}, function(response) {});
+  addWatcher(tab.url);
 }
 chrome.browserAction.onClicked.addListener(watchPage);
