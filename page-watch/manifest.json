@@ -1,8 +1,8 @@
 {
   "name": "PageWatch",
-  "version": "3.1",
+  "version": "1.1",
   "manifest_version": 2,
-  "description": "herp derp",
+  "description": "Watches user-specified websites for updates.",
   "icons": { "16": "noun-project-glasses.png",
 			 "48": "noun-project-glasses.png",
 			 "128": "noun-project-glasses.png" },

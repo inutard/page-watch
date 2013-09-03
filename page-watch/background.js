@@ -1,5 +1,5 @@
 var storage = chrome.storage.local;
-
+var refreshTime = 300; // refresh time in seconds
 function doInCurrentTab(tabCallback) {
   chrome.tabs.query(
     { currentWindow: true, active: true },
@@ -14,6 +14,7 @@ function toggleWatcher(url) {
     storage.set({'watchedWebsites' : websites}, function() {
       //alert('Page at ' + url + ' added!');
       doInCurrentTab(function(tab) { changeBadge({tabId: tab.id}) });
+      updateWatchers();
     });
   }
   
@@ -62,13 +63,13 @@ function createContentHandler(url, websites) {
                       type: "basic",
                       title: "",
                       message: url + " has changed!",
-                      iconUrl: 'icon.png',
+                      iconUrl: "noun-project-glasses.png",
                     }
                     chrome.notifications.create(url, options, function() {});
                   }
                   storage.set({'watchedWebsites' : websites}, function(items) {});
                 }
-              }
+              };
   return retval;
 }
 
@@ -91,7 +92,7 @@ function updateWatchers() {
 
 window.setInterval(function() {
   updateWatchers();
-}, 10*1000);
+}, refreshTime*1000);
 
 //open new tab of page when notification is clicked
 //decided not to clear notification after click
@@ -99,24 +100,24 @@ window.setInterval(function() {
 //the notification there to remind myself to do homework
 //later.
 function notificationClicked(url) {
-  chrome.tabs.create({'url' : url}, function(tab) {});
+  chrome.tabs.create(
+    {url : url},
+    function(tab) { chrome.tabs.reload(tab.id, {bypassCache: true}); }
+  );
 }
 chrome.notifications.onClicked.addListener(notificationClicked);
 
 //add page to watch list when clicked
 function watchPage(tab) {
-  console.log("adding watcher to " + tab.url);
   toggleWatcher(tab.url);
 }
 chrome.browserAction.onClicked.addListener(watchPage);
 
 //add red box to icon if tab changes or url changes
 function changeBadge(changeInfo) {
-  console.log(changeInfo);
   var toggleBadge = function(items) {
     websites = items.watchedWebsites;
     chrome.tabs.get(changeInfo.tabId, function(tab) {
-      console.log(tab);
       if (tab.url in websites) {
         chrome.browserAction.setBadgeText({text: " "});
       } else {
